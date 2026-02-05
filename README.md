@@ -72,8 +72,7 @@ La estructura del proyecto está organizada para ser modular y seguir los están
 | **Pydantic** | ![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=for-the-badge&logo=pydantic&logoColor=white) | Validación de datos y gestión de Schemas. | [pydantic.dev](https://docs.pydantic.dev/) |
 | **Uvicorn** | ![Uvicorn](https://img.shields.io/badge/Uvicorn-202020?style=for-the-badge&logo=uvicorn&logoColor=white) | Servidor ASGI para la ejecución de la aplicación. | [uvicorn.org](https://www.uvicorn.org/) |
 | **Dotenv** | ![Dotenv](https://img.shields.io/badge/Dotenv-ECD53F?style=for-the-badge&logo=dotenv&logoColor=black) | Manejo de variables de entorno para seguridad. | [pypi.org](https://pypi.org/project/python-dotenv/) |
-|**MySQL**: |![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)| Motor de base de datos relacional. ||
-|**Git**: |![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) |Control de versiones.||
+
 
 ---
 ## 👨‍💻👨🏽Autor Creado por :
