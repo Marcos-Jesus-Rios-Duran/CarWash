@@ -18,14 +18,14 @@ La estructura del proyecto está organizada para ser modular y seguir los están
 │   │   ├── route_names.py       # Constants for internal navigation
 │   │   └── validators.py        # Input validation
 │   └── /security
-│       └── sanitizer.py         # SQL injection & XSS prevention logic
+│       └── sanitizer.py         # SQL injection
 ├── /features
 │   ├── /auth                    # Login, Register & Token management
 │   │   ├── dao.py
 │   │   ├── models.py
 │   │   ├── routes.py
 │   │   └── schemas.py
-│   ├── /role                    #
+│   ├── /role
 │   │   ├── dao.py               # CRUD for roles
 │   │   ├── models.py            # Role table definition
 │   │   └── schemas.py
@@ -54,7 +54,7 @@ La estructura del proyecto está organizada para ser modular y seguir los están
 │       ├── models.py
 │       ├── routes.py
 │       └── schemas.py
-├── .env                         # Environment variables (Hidden)
+├── .env                         # Environment variables
 ├── main.py                      # FastAPI/Flask entry point
 └── requirements.txt             # Project dependencies
 ```
