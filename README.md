@@ -12,9 +12,9 @@ La estructura del proyecto está organizada para ser modular y seguir los están
 │   ├── /config
 │   │   └── database.py          # Database connection
 │   ├── /database
-│   │   └── initialization.py    # Scripts to create tables and seeds
+│   │   └── create_db.py         # Scripts to create tables and seeds
 │   ├── /utils
-│   │   ├── error_handlers.py    # Standardized API error responses
+│   │   ├── message_handlres.py  # Standardized message
 │   │   ├── route_names.py       # Constants for internal navigation
 │   │   └── validators.py        # Input validation
 │   └── /security
@@ -58,7 +58,20 @@ La estructura del proyecto está organizada para ser modular y seguir los están
 ├── main.py                      # FastAPI/Flask entry point
 └── requirements.txt             # Project dependencies
 ```
-##
+## 👨‍💻Virtual Enviroment
+Para crear el entonro virtual :
+<br/>
+**Windows:**
+
+```bash
+python -m venv venv
+```
+Activar entorno:
+~~~ bash
+venv\Scripts\activate
+~~~
+
+
 
 ## 🛠️ Librerías Implementadas
 
