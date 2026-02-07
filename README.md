@@ -10,6 +10,7 @@ The project structure is organizaded to be modular and follows international dev
 /carwash_backend
 ├── /common
 │   ├── /config
+|   |   ├──config.py
 │   │   └── database.py          # Database connection
 │   ├── /database
 │   │   └── create_db.py         # Scripts to create tables and seeds
