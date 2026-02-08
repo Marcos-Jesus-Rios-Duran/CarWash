@@ -12,7 +12,7 @@ from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 #determined the base directory of the project
-BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # 2. Create the absolute path to the .env file
 ENV_FILE_PATH = BASE_DIR / ".env"
