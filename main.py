@@ -16,8 +16,7 @@ async def lifespan(app: FastAPI):
     if status == True:
         print("✅ Conexión Exitosa (True)")
     else:
-        print("❌ Error Fatal: No se pudo conectar a la BD (-1)")
-        # Aquí podrías decidir detener la app si la DB es obligatoria
+        print("❌Error no se puedo conectar a la base de datos ")
 
     yield
     # --- APAGADO ---
