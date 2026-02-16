@@ -20,6 +20,8 @@ The project structure is organizaded to be modular and follows international dev
 │   │   └── validators.py        # Input validation
 │   └── /security
 │       └── sanitizer.py         # SQL injection
+|       └── hash.py              #hash for password
+|       └──
 ├── /features
 │   ├── /auth                    # Login, Register & Token management
 │   │   ├── dao.py
@@ -70,8 +72,9 @@ to activate the enviroment:
 ~~~ bash
 venv\Scripts\activate
 ~~~
-
-
+~~~bash
+pip install -r requeriments.txt
+~~~
 
 ## 🛠️ Libraries
 

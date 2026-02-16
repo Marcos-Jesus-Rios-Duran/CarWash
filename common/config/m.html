@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen de Estudio: Planeación y Organización</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+        h1 { color: #333; margin-bottom: 20px; font-size: 1.5rem; }
+        .question { font-size: 1.2rem; margin-bottom: 20px; color: #444; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        button {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        button:hover { background-color: #f0f0f0; border-color: #bbb; }
+
+        /* Estilos para retroalimentación */
+        button.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+            pointer-events: none; /* Bloquea el botón */
+        }
+        button.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        #feedback-msg {
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        #next-btn {
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            display: none; /* Oculto por defecto */
+        }
+        #next-btn:hover { background-color: #0056b3; }
+
+        .progress { margin-bottom: 15px; color: #666; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="progress">Pregunta <span id="current-q">1</span> de <span id="total-q">0</span></div>
+    <div id="quiz-box">
+        <h1 id="category-title">Cargando...</h1>
+        <div class="question" id="question-text"></div>
+        <div class="options" id="options-box">
+            </div>
+        <div id="feedback-msg"></div>
+        <button id="next-btn" onclick="nextQuestion()">Siguiente Pregunta</button>
+    </div>
+    <div id="result-box" style="display:none;">
+        <h1>¡Repaso Terminado!</h1>
+        <p>Has completado todas las preguntas de estudio.</p>
+        <button onclick="location.reload()">Volver a empezar</button>
+    </div>
+</div>
+
+<script>
+    // Banco de Preguntas
+    const questions = [
+        // --- TEMA: ESTRATEGIA VS TÁCTICA ---
+        {
+            category: "Estrategia vs. Táctica",
+            question: "¿Cuál es la principal diferencia entre Estrategia y Táctica?",
+            options: [
+                { text: "La estrategia es el plan global (el 'qué') y la táctica son los pasos específicos (el 'cómo').", correct: true },
+                { text: "La táctica es a largo plazo y la estrategia es a corto plazo.", correct: false },
+                { text: "La estrategia se enfoca en acciones diarias y la táctica en la visión anual.", correct: false },
+                { text: "No hay diferencia, son sinónimos.", correct: false }
+            ]
+        },
+        {
+            category: "Estrategia vs. Táctica",
+            question: "Si un general decide 'Invadir el país X por el norte para tomar la capital', eso es una:",
+            options: [
+                { text: "Estrategia", correct: true },
+                { text: "Táctica", correct: false },
+                { text: "Meta", correct: false },
+                { text: "Misión", correct: false }
+            ]
+        },
+        {
+            category: "Estrategia vs. Táctica",
+            question: "Dentro del plan anterior, decidir 'Usar camuflaje verde y atacar de noche' es una:",
+            options: [
+                { text: "Táctica", correct: true },
+                { text: "Estrategia", correct: false },
+                { text: "Visión", correct: false },
+                { text: "Política", correct: false }
+            ]
+        },
+        {
+            category: "Estrategia vs. Táctica",
+            question: "En una empresa de software, decidir 'Convertirnos en el líder de IA en Latinoamérica' es:",
+            options: [
+                { text: "Estrategia", correct: true },
+                { text: "Táctica", correct: false },
+                { text: "Procedimiento", correct: false },
+                { text: "Regla", correct: false }
+            ]
+        },
+        {
+            category: "Estrategia vs. Táctica",
+            question: "En la misma empresa, decidir 'Contratar 5 ingenieros senior en Python este mes' es:",
+            options: [
+                { text: "Táctica", correct: true },
+                { text: "Estrategia", correct: false },
+                { text: "Filosofía", correct: false },
+                { text: "Misión", correct: false }
+            ]
+        },
+
+        // --- TEMA: META VS OBJETIVO ---
+        {
+            category: "Meta vs. Objetivo",
+            question: "Una 'Meta' se diferencia de un 'Objetivo' porque la meta es:",
+            options: [
+                { text: "Una aspiración amplia y abstracta, mientras que el objetivo es preciso y medible.", correct: true },
+                { text: "Algo que se cumple en días, mientras que el objetivo tarda años.", correct: false },
+                { text: "Lo mismo que un objetivo pero dicho en inglés.", correct: false },
+                { text: "Cuantificable numéricamente, mientras que el objetivo es solo un deseo.", correct: false }
+            ]
+        },
+        {
+            category: "Meta vs. Objetivo",
+            question: "Ejemplo: 'Ser la mejor empresa de calzado del mundo'. Esto es:",
+            options: [
+                { text: "Una Meta", correct: true },
+                { text: "Un Objetivo SMART", correct: false },
+                { text: "Una Táctica", correct: false },
+                { text: "Un Procedimiento", correct: false }
+            ]
+        },
+        {
+            category: "Meta vs. Objetivo",
+            question: "Ejemplo: 'Aumentar las ventas un 10% antes de diciembre'. Esto es:",
+            options: [
+                { text: "Un Objetivo", correct: true },
+                { text: "Una Meta abstracta", correct: false },
+                { text: "Una Visión", correct: false },
+                { text: "Una Política", correct: false }
+            ]
+        },
+        {
+            category: "Meta vs. Objetivo",
+            question: "¿Cuál de las siguientes frases describe mejor un Objetivo?",
+            options: [
+                { text: "Reducir los costos de producción en un 5% para el Q3.", correct: true },
+                { text: "Queremos ser más eficientes.", correct: false },
+                { text: "Soñamos con un mundo sin contaminación.", correct: false },
+                { text: "Mejorar la calidad de nuestros productos algún día.", correct: false }
+            ]
+        },
+
+        // --- TEMA: METODOLOGÍA SMART ---
+        {
+            category: "Metodología SMART",
+            question: "En la metodología SMART, ¿qué significa la letra 'M'?",
+            options: [
+                { text: "Medible (Measurable)", correct: true },
+                { text: "Magnífico", correct: false },
+                { text: "Manual", correct: false },
+                { text: "Mejorable", correct: false }
+            ]
+        },
+        {
+            category: "Metodología SMART",
+            question: "En SMART, la letra 'S' significa:",
+            options: [
+                { text: "Específico (Specific)", correct: true },
+                { text: "Sostenible", correct: false },
+                { text: "Simple", correct: false },
+                { text: "Sistemático", correct: false }
+            ]
+        },
+        {
+            category: "Metodología SMART",
+            question: "En SMART, la letra 'A' suele referirse a:",
+            options: [
+                { text: "Alcanzable (Achievable)", correct: true },
+                { text: "Aleatorio", correct: false },
+                { text: "Abstracto", correct: false },
+                { text: "Automático", correct: false }
+            ]
+        },
+        {
+            category: "Metodología SMART",
+            question: "En SMART, la letra 'R' significa:",
+            options: [
+                { text: "Relevante (Relevant)", correct: true },
+                { text: "Rápido", correct: false },
+                { text: "Raro", correct: false },
+                { text: "Redundante", correct: false }
+            ]
+        },
+        {
+            category: "Metodología SMART",
+            question: "En SMART, la letra 'T' significa:",
+            options: [
+                { text: "Temporal / A tiempo (Time-bound)", correct: true },
+                { text: "Tecnológico", correct: false },
+                { text: "Teórico", correct: false },
+                { text: "Tranquilo", correct: false }
+            ]
+        },
+        // Escenarios SMART
+        {
+            category: "Metodología SMART: Casos",
+            question: "Objetivo: 'Quiero aprender inglés'. ¿Qué le falta principalmente para ser SMART?",
+            options: [
+                { text: "No es Específico ni Medible ni tiene Tiempo límite.", correct: true },
+                { text: "No es Relevante.", correct: false },
+                { text: "No es Alcanzable porque nadie aprende inglés.", correct: false },
+                { text: "Está perfecto así.", correct: false }
+            ]
+        },
+        {
+            category: "Metodología SMART: Casos",
+            question: "Objetivo: 'Vender 1 millón de dólares mañana' (siendo una tienda pequeña). ¿Qué falla aquí?",
+            options: [
+                { text: "No es Alcanzable (A).", correct: true },
+                { text: "No es Específico (S).", correct: false },
+                { text: "No es Temporal (T).", correct: false },
+                { text: "No es Medible (M).", correct: false }
+            ]
+        },
+        {
+            category: "Metodología SMART: Casos",
+            question: "Objetivo: 'Aumentar las visitas al sitio web en un 20%'. ¿Qué le falta?",
+            options: [
+                { text: "El Tiempo (Time-bound): ¿Para cuándo?", correct: true },
+                { text: "La Medición (Measurable).", correct: false },
+                { text: "La Especificidad (Specific).", correct: false },
+                { text: "La Relevancia (Relevant).", correct: false }
+            ]
+        },
+        {
+            category: "Metodología SMART: Casos",
+            question: "Objetivo: 'Comer 50 pizzas en una hora para mejorar mi salud'. ¿Qué falla aquí?",
+            options: [
+                { text: "No es Relevante (R) para el objetivo de salud (es contraproducente).", correct: true },
+                { text: "No es Medible (M).", correct: false },
+                { text: "No es Temporal (T).", correct: false },
+                { text: "No es Específico (S).", correct: false }
+            ]
+        },
+
+        // --- TEMA: TIPOS DE PLANEACIÓN (ACKOFF) ---
+        {
+            category: "Planeación (Ackoff)",
+            question: "¿Qué caracteriza a la planeación REACTIVISTA?",
+            options: [
+                { text: "Se enfoca en el pasado. Prefiere 'como eran las cosas antes'.", correct: true },
+                { text: "Se enfoca en el futuro innovador.", correct: false },
+                { text: "Se enfoca en no hacer nada.", correct: false },
+                { text: "Se enfoca en predecir el clima.", correct: false }
+            ]
+        },
+        {
+            category: "Planeación (Ackoff)",
+            question: "¿Qué caracteriza a la planeación INACTIVISTA?",
+            options: [
+                { text: "Se enfoca en el presente. Busca mantener el status quo y sobrevivir.", correct: true },
+                { text: "Busca destruir la empresa.", correct: false },
+                { text: "Quiere cambiar todo radicalmente.", correct: false },
+                { text: "Diseña el futuro deseado.", correct: false }
+            ]
+        },
+        {
+            category: "Planeación (Ackoff)",
+            question: "¿Qué caracteriza a la planeación PREACTIVISTA?",
+            options: [
+                { text: "Se enfoca en el futuro, pero tratando de predecirlo para prepararse (no para crearlo).", correct: true },
+                { text: "Se enfoca en el pasado glorioso.", correct: false },
+                { text: "Se enfoca en no tomar riesgos.", correct: false },
+                { text: "Se enfoca en inventar el futuro desde cero.", correct: false }
+            ]
+        },
+        {
+            category: "Planeación (Ackoff)",
+            question: "¿Qué caracteriza a la planeación INTERACTIVISTA?",
+            options: [
+                { text: "No solo se prepara, sino que diseña y crea el futuro deseado.", correct: true },
+                { text: "Espera a que las cosas pasen.", correct: false },
+                { text: "Mira fotos antiguas de la empresa.", correct: false },
+                { text: "Solo reacciona a emergencias.", correct: false }
+            ]
+        },
+        // Escenarios Ackoff
+        {
+            category: "Planeación: Escenarios",
+            question: "Una empresa familiar dice: 'El abuelo lo hacía mejor, volvamos a usar sus métodos manuales'. Es:",
+            options: [
+                { text: "Reactivista", correct: true },
+                { text: "Preactivista", correct: false },
+                { text: "Interactivista", correct: false },
+                { text: "Inactivista", correct: false }
+            ]
+        },
+        {
+            category: "Planeación: Escenarios",
+            question: "Una burocracia gubernamental que evita cambios y solo quiere pasar el día sin problemas. Es:",
+            options: [
+                { text: "Inactivista", correct: true },
+                { text: "Reactivista", correct: false },
+                { text: "Interactivista", correct: false },
+                { text: "Preactivista", correct: false }
+            ]
+        },
+        {
+            category: "Planeación: Escenarios",
+            question: "Una empresa tecnológica que usa IA para predecir tendencias y ajustarse antes de que lleguen. Es:",
+            options: [
+                { text: "Preactivista", correct: true },
+                { text: "Reactivista", correct: false },
+                { text: "Inactivista", correct: false },
+                { text: "Pasiva", correct: false }
+            ]
+        },
+        {
+            category: "Planeación: Escenarios",
+            question: "Steve Jobs creando el iPhone (algo que nadie pedía pero él diseñó como futuro). Es:",
+            options: [
+                { text: "Interactivista", correct: true },
+                { text: "Reactivista", correct: false },
+                { text: "Inactivista", correct: false },
+                { text: "Preactivista", correct: false }
+            ]
+        },
+        {
+            category: "Planeación: Escenarios",
+            question: "Empresa que dice: 'Más vale malo conocido que bueno por conocer'.",
+            options: [
+                { text: "Inactivista", correct: true },
+                { text: "Interactivista", correct: false },
+                { text: "Preactivista", correct: false },
+                { text: "Innovadora", correct: false }
+            ]
+        },
+
+        // --- TEMA: MODELOS ORGANIZACIONALES ---
+        {
+            category: "Modelos Organizacionales",
+            question: "Estructura donde la autoridad va de arriba a abajo, típica de ejércitos o iglesias antiguas.",
+            options: [
+                { text: "Lineal o Jerárquica", correct: true },
+                { text: "Matricial", correct: false },
+                { text: "Funcional", correct: false },
+                { text: "Divisional", correct: false }
+            ]
+        },
+        {
+            category: "Modelos Organizacionales",
+            question: "Estructura donde se agrupa a la gente por especialidad (Dpto. Marketing, Dpto. Finanzas, Dpto. RRHH).",
+            options: [
+                { text: "Funcional", correct: true },
+                { text: "Divisional", correct: false },
+                { text: "Matricial", correct: false },
+                { text: "Lineal", correct: false }
+            ]
+        },
+        {
+            category: "Modelos Organizacionales",
+            question: "Estructura donde la empresa se divide por zonas geográficas (División Norte, División Sur).",
+            options: [
+                { text: "Divisional (Geográfica)", correct: true },
+                { text: "Funcional", correct: false },
+                { text: "Matricial", correct: false },
+                { text: "Lineal", correct: false }
+            ]
+        },
+        {
+            category: "Modelos Organizacionales",
+            question: "Estructura donde un empleado tiene DOS jefes: el del departamento y el del proyecto.",
+            options: [
+                { text: "Matricial", correct: true },
+                { text: "Lineal", correct: false },
+                { text: "Funcional", correct: false },
+                { text: "Staff", correct: false }
+            ]
+        },
+        {
+            category: "Modelos Organizacionales",
+            question: "¿Qué es una organización 'Staff'?",
+            options: [
+                { text: "Especialistas que asesoran a la línea de mando pero no tienen autoridad directa sobre ella.", correct: true },
+                { text: "Los empleados de limpieza.", correct: false },
+                { text: "Los dueños de la empresa.", correct: false },
+                { text: "Una estructura sin jefes.", correct: false }
+            ]
+        },
+        // Escenarios Modelos
+        {
+            category: "Modelos: Escenarios",
+            question: "Coca-Cola tiene una división para América Latina, otra para Europa y otra para Asia. Usan modelo:",
+            options: [
+                { text: "Divisional (Geográfico)", correct: true },
+                { text: "Funcional", correct: false },
+                { text: "Lineal", correct: false },
+                { text: "Monárquico", correct: false }
+            ]
+        },
+        {
+            category: "Modelos: Escenarios",
+            question: "Una startup donde todos son programadores y reportan al CTO, y hay un equipo de ventas que reporta al CCO. Usan modelo:",
+            options: [
+                { text: "Funcional", correct: true },
+                { text: "Divisional por producto", correct: false },
+                { text: "Matricial", correct: false },
+                { text: "Geográfico", correct: false }
+            ]
+        },
+        {
+            category: "Modelos: Escenarios",
+            question: "Una constructora crea un equipo temporal con ingenieros, arquitectos y contadores solo para construir un puente específico.",
+            options: [
+                { text: "Matricial / Por Proyectos", correct: true },
+                { text: "Lineal", correct: false },
+                { text: "Inactivista", correct: false },
+                { text: "Jerárquica estricta", correct: false }
+            ]
+        },
+        {
+            category: "Modelos: Escenarios",
+            question: "Ventaja principal del modelo Funcional:",
+            options: [
+                { text: "Alta especialización del personal en su área.", correct: true },
+                { text: "Facilidad para adaptarse a cambios rápidos.", correct: false },
+                { text: "Doble cadena de mando.", correct: false },
+                { text: "Enfoque total en el producto final.", correct: false }
+            ]
+        },
+        {
+            category: "Modelos: Escenarios",
+            question: "Desventaja principal del modelo Matricial:",
+            options: [
+                { text: "Posible confusión y conflicto por tener dos jefes.", correct: true },
+                { text: "Falta de especialización.", correct: false },
+                { text: "Estructura demasiado simple.", correct: false },
+                { text: "Bajo costo administrativo.", correct: false }
+            ]
+        },
+
+        // --- PREGUNTAS VARIADAS EXTRA PARA LLEGAR A 50 ---
+        {
+            category: "Planeación General",
+            question: "La planeación responde principalmente a la pregunta:",
+            options: [
+                { text: "¿Qué se va a hacer y cómo?", correct: true },
+                { text: "¿Quién lo hizo?", correct: false },
+                { text: "¿Cuánto ganamos ayer?", correct: false },
+                { text: "¿Por qué fallamos?", correct: false }
+            ]
+        },
+        {
+            category: "Planeación General",
+            question: "¿Qué es la 'Misión' de una empresa?",
+            options: [
+                { text: "La razón de ser de la empresa en el presente.", correct: true },
+                { text: "Lo que quiere ser en el futuro.", correct: false },
+                { text: "Sus valores éticos.", correct: false },
+                { text: "Su plan de marketing.", correct: false }
+            ]
+        },
+        {
+            category: "Planeación General",
+            question: "¿Qué es la 'Visión' de una empresa?",
+            options: [
+                { text: "La imagen del futuro deseado a largo plazo.", correct: true },
+                { text: "Lo que hace todos los días.", correct: false },
+                { text: "El reglamento interno.", correct: false },
+                { text: "El análisis de costos.", correct: false }
+            ]
+        },
+        {
+            category: "Estrategia",
+            question: "El análisis FODA (o SWOT) ayuda a la planeación estratégica analizando:",
+            options: [
+                { text: "Fortalezas, Oportunidades, Debilidades y Amenazas.", correct: true },
+                { text: "Finanzas, Operaciones, Dirección y Administración.", correct: false },
+                { text: "Futuro, Orden, Dinero y Activos.", correct: false },
+                { text: "Fe, Orgullo, Dedicación y Amor.", correct: false }
+            ]
+        },
+        {
+            category: "Tipos de Planeación",
+            question: "Si una empresa 'navega con la corriente' sin intentar cambiar su rumbo, es:",
+            options: [
+                { text: "Inactivista", correct: true },
+                { text: "Interactivista", correct: false },
+                { text: "Proactiva", correct: false },
+                { text: "Estratégica", correct: false }
+            ]
+        },
+        {
+            category: "Modelos Organizacionales",
+            question: "Una organización 'Homogénea' o Adhocrática suele caracterizarse por:",
+            options: [
+                { text: "Poca jerarquía y alta flexibilidad para innovar.", correct: true },
+                { text: "Reglas estrictas y muchos jefes.", correct: false },
+                { text: "Burocracia lenta.", correct: false },
+                { text: "Divisiones por países.", correct: false }
+            ]
+        },
+        {
+            category: "Metodología SMART",
+            question: "¿Cuál NO es una característica SMART?",
+            options: [
+                { text: "Rápido (Rapid).", correct: true },
+                { text: "Específico (Specific).", correct: false },
+                { text: "Medible (Measurable).", correct: false },
+                { text: "Temporal (Time-bound).", correct: false }
+            ]
+        },
+        {
+            category: "Estrategia vs Táctica",
+            question: "La táctica suele tener un alcance de tiempo:",
+            options: [
+                { text: "Corto plazo.", correct: true },
+                { text: "Largo plazo.", correct: false },
+                { text: "Indefinido.", correct: false },
+                { text: "Infinito.", correct: false }
+            ]
+        },
+        {
+            category: "Estrategia vs Táctica",
+            question: "La estrategia suele ser responsabilidad principal de:",
+            options: [
+                { text: "La alta dirección (Gerentes generales, CEOs).", correct: true },
+                { text: "Los operarios de planta.", correct: false },
+                { text: "Los supervisores de línea.", correct: false },
+                { text: "Los clientes.", correct: false }
+            ]
+        },
+        {
+            category: "Repaso General",
+            question: "¿Qué modelo organizacional es mejor para empresas con productos muy distintos entre sí (ej. Yamaha: Motos e Instrumentos)?",
+            options: [
+                { text: "Divisional (por producto).", correct: true },
+                { text: "Funcional puro.", correct: false },
+                { text: "Lineal simple.", correct: false },
+                { text: "Centralizado.", correct: false }
+            ]
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+
+    // Función para barajar (randomizar) un array
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    // Inicializar el quiz
+    function startQuiz() {
+        // Barajamos el orden de las preguntas para que no salgan siempre igual
+        shuffleArray(questions);
+        document.getElementById('total-q').textContent = questions.length;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const qData = questions[currentQuestionIndex];
+
+        // Actualizar UI
+        document.getElementById('current-q').textContent = currentQuestionIndex + 1;
+        document.getElementById('category-title').textContent = qData.category;
+        document.getElementById('question-text').textContent = qData.question;
+        document.getElementById('feedback-msg').textContent = "";
+        document.getElementById('next-btn').style.display = "none";
+
+        const optionsBox = document.getElementById('options-box');
+        optionsBox.innerHTML = ""; // Limpiar opciones anteriores
+
+        // Barajar las opciones de respuesta (Aquí está la lógica "1,4,2,1,3")
+        // Clonamos las opciones para no alterar el objeto original
+        let currentOptions = [...qData.options];
+        shuffleArray(currentOptions);
+
+        currentOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.textContent = opt.text;
+            btn.onclick = () => checkAnswer(btn, opt.correct);
+            optionsBox.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(btn, isCorrect) {
+        // Si ya adivinó, no dejar hacer clic en otros botones incorrectos
+        if (document.getElementById('next-btn').style.display === "inline-block") return;
+
+        if (isCorrect) {
+            btn.classList.add('correct');
+            document.getElementById('feedback-msg').textContent = "¡Correcto! Muy bien.";
+            document.getElementById('feedback-msg').style.color = "#28a745";
+
+            // Mostrar botón siguiente
+            document.getElementById('next-btn').style.display = "inline-block";
+
+            // Deshabilitar el resto de botones para que no siga clicando
+            const allBtns = document.querySelectorAll('.options button');
+            allBtns.forEach(b => b.disabled = true);
+            btn.disabled = false; // Dejar el correcto visiblemente activo (aunque bloqueado por CSS)
+
+        } else {
+            btn.classList.add('incorrect');
+            document.getElementById('feedback-msg').textContent = "Incorrecto, inténtalo de nuevo.";
+            document.getElementById('feedback-msg').style.color = "#dc3545";
+            // No mostramos el botón siguiente, forzando al usuario a elegir otra.
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            document.getElementById('quiz-box').style.display = "none";
+            document.getElementById('result-box').style.display = "block";
+            document.querySelector('.progress').style.display = "none";
+        }
+    }
+
+    // Arrancar al cargar
+    window.onload = startQuiz;
+
+</script>
+
+</body>
+</html>
