@@ -1,36 +1,40 @@
 """
-carwash_backend/features/user/models.py
-SQLAlchemy model definition for the User feature.
+User models for the CarWash system.
+Handles personal information, authentication, and role assignment.
 """
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from common.config.database import Base
-from common.utils.date_utils import get_now_mx  # <--- Importamos nuestra utilidad
+from common.utils.date_utils import get_now_mx
+
 
 class User(Base):
+    """
+    User model containing profile data and security credentials.
+    """
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
 
-    # --- Personal Info (Mexican Style) ---
+    # Names based on Mexican naming conventions
     first_name = Column(String(60), nullable=False)
-    last_name = Column(String(60), nullable=False)       # Apellido Paterno
-    # AQUI: Al poner nullable=False, la base de datos RECHAZARÁ si va vacío.
-    second_last_name = Column(String(60), nullable=False) # Apellido Materno (Obligatorio)
+    last_name = Column(String(60), nullable=False)          # Paternal Surname
+    second_last_name = Column(String(60), nullable=False)   # Maternal Surname
 
     username = Column(String(60), unique=True, index=True, nullable=False)
     password = Column(String(256), nullable=False)
 
-    address = Column(String(160), nullable=True)
-    phone_number = Column(String(15), nullable=True)
-    email = Column(String(100), unique=True, nullable=True)
+    address = Column(String(255), nullable=True)
+    phone_number = Column(String(255), nullable=True)
+    email = Column(String(100), unique=True, nullable=False)
 
     is_active = Column(Boolean, default=True)
+
+    # Relationships
+    role = relationship("Role", back_populates="users")
     vehicles = relationship("Vehicle", back_populates="owner")
 
-    # --- Fechas con Hora de México ---
-    # Usamos 'default' (Python) en vez de 'server_default' (SQL)
-    # para garantizar que se guarde con la hora que calculamos en utils.
+    # Timestamps with Mexico City timezone
     created_at = Column(DateTime(timezone=True), default=get_now_mx)
     updated_at = Column(DateTime(timezone=True), default=get_now_mx, onupdate=get_now_mx)

@@ -1,25 +1,50 @@
 """
 carwash_backend/main.py
-principal module to run the carwash backend application
-
+Principal module to run the carwash backend application.
 """
+
+import logging
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+
 from common.config.database import test_connection
+# 1. IMPORT ALL MODELS to register them in SQLAlchemy's Base metadata
+# This prevents the "failed to locate a name ('Vehicle')" error.
+from features.role.models import Role
+from features.user.models import User
+from features.vehicle.models import Vehicle
+from features.service.models import Service
+from features.appointment.models import Appointment
+from features.auth.models import UserToken
+
+# 2. Import routers
+from features.user.routes import router as user_router
+from features.auth.routes import router as auth_router
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # --- INICIO ---
-    print("Verificando conexión a Base de Datos...")
+    """Handles startup and shutdown events."""
+    logger.info("Verificando conexión a Base de Datos...")
     status = await test_connection()
 
-    if status == True:
-        print("✅ Conexión Exitosa (True)")
+    if status is True:
+        logger.info("✅ Database connection successful.")
     else:
-        print("❌Error no se puedo conectar a la base de datos ")
+        logger.error("❌ Critical Error: Could not connect to the database.")
 
     yield
-    # --- APAGADO ---
-    print("Apagando aplicación...")
+    logger.info("Shutting down application...")
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title="CarWash System API",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# Register Routers
+app.include_router(auth_router)
+app.include_router(user_router)

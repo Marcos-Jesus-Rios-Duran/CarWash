@@ -75,7 +75,10 @@ venv\Scripts\activate
 ~~~bash
 pip install -r requeriments.txt
 ~~~
-
+run server
+~~~bash
+uvicorn main:app --reload
+~~~
 ## 🛠️ Libraries
 
 ### **Backend**

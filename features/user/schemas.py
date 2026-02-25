@@ -41,9 +41,9 @@ class UserUpdate(BaseModel):
     last_name: Optional[str] = Field(None, max_length=60)
     second_last_name: Optional[str] = Field(None, max_length=60)
     username: Optional[str] = Field(None, max_length=60)
-    password: Optional[str] = Field(None, min_length=8, max_length=256)
-    address: Optional[str] = Field(None, max_length=160)
-    phone_number: Optional[str] = Field(None, max_length=15)
+    password: Optional[str] = Field(None, min_length=8, max_length=72)
+    address: Optional[str] = Field(None, max_length=255)
+    phone_number: Optional[str] = Field(None, max_length=255)
     email: Optional[EmailStr] = Field(None, max_length=100)
     role_id: Optional[int] = None
     is_active: Optional[bool] = None

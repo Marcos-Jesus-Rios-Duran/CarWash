@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     SERVER_PORT: int = 8000
 
     SECRET_KEY: str
+    ENCRYPTION_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
