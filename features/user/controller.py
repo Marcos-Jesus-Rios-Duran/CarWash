@@ -45,18 +45,18 @@ class UserController:
                 detail=f"The email '{user_in.email}' is already registered."
             )
 
-        # 3. Resolve Role Name to ID
-        role = await self.role_dao.get_by_name(role_name)
+    # 3. Resolve Role Name usando el valor que viene en el JSON (user_in.role_name)
+        role = await self.role_dao.get_by_name(user_in.role_name)
         if not role:
-            logger.error(f"System error: Role '{role_name}' not found in database.")
+            logger.error(f"Role '{user_in.role_name}' not found.")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Configuration error: Role '{role_name}' does not exist."
+                detail=f"Configuration error: Role '{user_in.role_name}' does not exist."
             )
 
-        # 4. Assign the resolved role_id to the user object
+        # 4. Assign the resolved role_id
         user_in.role_id = role.id
 
         # 5. Persist user data via DAO
-        logger.info(f"Creating new user: {user_in.username} with role {role_name}")
+        logger.info(f"Creating new user: {user_in.username} with role {user_in.role_name}")
         return await self.user_dao.create(user_in)
