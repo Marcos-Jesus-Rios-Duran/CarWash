@@ -9,6 +9,7 @@ from common.security.encryption import encrypt_data
 from common.security.hash import get_password_hash
 from features.user.models import User
 from features.user.schemas import UserCreate
+from sqlalchemy.orm import selectinload
 
 
 class UserDAO:
@@ -91,13 +92,13 @@ class UserDAO:
         return new_user
 
     async def get_by_id(self, user_id: int) -> Optional[User]:
-        """Busca un usuario por su ID único."""
-        query = select(User).where(User.id == user_id)
-        result = await self.session.execute(query)
-        return result.scalars().first()
+            """Busca un usuario por ID cargando su rol para validaciones de seguridad."""
+            query = select(User).options(selectinload(User.role)).where(User.id == user_id)
+            result = await self.session.execute(query)
+            return result.scalars().first()
 
     async def get_all(self) -> list[User]:
-        """Obtiene la lista completa de usuarios (para Admins)."""
-        query = select(User)
+        """Obtiene todos los usuarios cargando sus roles."""
+        query = select(User).options(selectinload(User.role))
         result = await self.session.execute(query)
         return result.scalars().all()
