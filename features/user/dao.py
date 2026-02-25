@@ -89,3 +89,15 @@ class UserDAO:
         await self.session.refresh(new_user)
 
         return new_user
+
+    async def get_by_id(self, user_id: int) -> Optional[User]:
+        """Busca un usuario por su ID único."""
+        query = select(User).where(User.id == user_id)
+        result = await self.session.execute(query)
+        return result.scalars().first()
+
+    async def get_all(self) -> list[User]:
+        """Obtiene la lista completa de usuarios (para Admins)."""
+        query = select(User)
+        result = await self.session.execute(query)
+        return result.scalars().all()

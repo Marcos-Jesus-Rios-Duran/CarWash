@@ -3,7 +3,7 @@ Security dependencies for route protection.
 """
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from common.security.jwt_manager import decode_access_token
+from common.security.jwt_manager import decode_token
 from common.config.database import get_db
 from features.user.dao import UserDAO
 
@@ -18,7 +18,7 @@ async def get_current_user(
     Validates the token and returns the current authenticated user.
     """
     token = credentials.credentials
-    payload = decode_access_token(token)
+    payload = decode_token(token)
 
     if not payload:
         raise HTTPException(
