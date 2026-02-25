@@ -19,6 +19,7 @@ from features.user.models import User
 from features.service.models import Service
 from features.vehicle.models import Vehicle
 from features.appointment.models import Appointment
+from features.auth.models import UserToken
 # pylint: enable=wrong-import-position, unused-import
 
 

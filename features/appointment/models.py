@@ -4,6 +4,7 @@ Models for the appointment feature, managing service schedules and staff.
 """
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from common.config.database import Base
 
@@ -26,7 +27,10 @@ class Appointment(Base):
     # Involved Staff
     cashier_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     washer_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-
+    vehicle = relationship("Vehicle")
+    service = relationship("Service")
+    cashier = relationship("User", foreign_keys=[cashier_id])
+    washer = relationship("User", foreign_keys=[washer_id])
     # Schedule Information
     appointment_date = Column(DateTime, nullable=False)
     start_time = Column(DateTime, nullable=True)

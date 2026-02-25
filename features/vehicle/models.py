@@ -4,6 +4,7 @@ Models for the vehicle feature, representing car details and ownership.
 """
 
 from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 from common.config.database import Base
 
 
@@ -18,12 +19,12 @@ class Vehicle(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
-    # Customer Relationship (One vehicle belongs to one customer)
-    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
-
+    # Customer Relationship (One vehicle belongs to one user)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     # Vehicle Specifications
     plate_number = Column(String(20), unique=True, index=True, nullable=False)
     brand = Column(String(50), nullable=False)
     model = Column(String(50), nullable=False)
     color = Column(String(30), nullable=True)
     doors = Column(Integer, nullable=True)
+    owner = relationship("User", back_populates="vehicles")

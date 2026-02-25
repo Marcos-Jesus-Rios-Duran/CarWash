@@ -3,6 +3,7 @@ carwash_backend/features/user/models.py
 SQLAlchemy model definition for the User feature.
 """
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from common.config.database import Base
 from common.utils.date_utils import get_now_mx  # <--- Importamos nuestra utilidad
 
@@ -26,6 +27,7 @@ class User(Base):
     email = Column(String(100), unique=True, nullable=True)
 
     is_active = Column(Boolean, default=True)
+    vehicles = relationship("Vehicle", back_populates="owner")
 
     # --- Fechas con Hora de México ---
     # Usamos 'default' (Python) en vez de 'server_default' (SQL)
