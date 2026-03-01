@@ -36,8 +36,7 @@ async def create_user(
 @router.get("/me", response_model=UserResponse)
 async def get_my_profile(current_user: User = Depends(get_current_user)):
     """
-    Retorna el perfil del usuario autenticado.
-    Cualquier rol (Customer, Washer, etc.) puede entrar aquí.
+    Get the profile of the currently authenticated user.
     """
     return current_user
 

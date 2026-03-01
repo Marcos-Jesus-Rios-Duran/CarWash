@@ -99,13 +99,13 @@ class UserDAO:
 
     async def get_all(self) -> list[User]:
         """Obtiene todos los usuarios cargando sus roles."""
-        query = select(User).options(selectinload(User.role))
+        query = select(User).filter(User.is_active == True).options(selectinload(User.role))
         result = await self.session.execute(query)
         return result.scalars().all()
 
     async def delete(self, db_user: User) -> None:
-        """Delete a user record from the database."""
-        await self.session.delete(db_user)
+        """update  a user's is_active status to False."""
+        db_user.is_active = False
         await self.session.commit()
 
     async def update(self, db_user: User, user_in: UserUpdate) -> User:

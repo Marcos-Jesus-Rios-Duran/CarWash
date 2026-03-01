@@ -29,7 +29,7 @@ class VehicleDAO:
         """
         Retrieve all vehicles in the system (For Admins and Cashiers).
         """
-        query = select(Vehicle)
+        query = select(Vehicle).filter(Vehicle.is_active == True)
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
@@ -37,7 +37,10 @@ class VehicleDAO:
         """
         Retrieve only the vehicles belonging to a specific user.
         """
-        query = select(Vehicle).where(Vehicle.user_id == user_id)
+        query = select(Vehicle).where(
+            Vehicle.user_id == user_id
+            & (Vehicle.is_active == True)
+        )
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
@@ -60,5 +63,5 @@ class VehicleDAO:
 
     async def delete(self, db_vehicle: Vehicle) -> None:
         """kill a vehicle record from the database."""
-        await self.session.delete(db_vehicle)
+        db_vehicle.is_active = False
         await self.session.commit()

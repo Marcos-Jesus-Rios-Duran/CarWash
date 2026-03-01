@@ -3,7 +3,7 @@ carwash_backend/features/vehicle/models.py
 Models for the vehicle feature, representing car details and ownership.
 """
 
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from common.config.database import Base
 
@@ -27,4 +27,5 @@ class Vehicle(Base):
     model = Column(String(50), nullable=False)
     color = Column(String(30), nullable=True)
     doors = Column(Integer, nullable=True)
+    is_active = Column(Boolean, default=True)
     owner = relationship("User", back_populates="vehicles")
