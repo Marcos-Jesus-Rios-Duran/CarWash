@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from common.security.encryption import encrypt_data
 from common.security.hash import get_password_hash
 from features.user.models import User
-from features.user.schemas import UserCreate
+from features.user.schemas import UserCreate, UserUpdate
 from sqlalchemy.orm import selectinload
 
 
@@ -102,3 +102,33 @@ class UserDAO:
         query = select(User).options(selectinload(User.role))
         result = await self.session.execute(query)
         return result.scalars().all()
+
+    async def delete(self, db_user: User) -> None:
+        """Delete a user record from the database."""
+        await self.session.delete(db_user)
+        await self.session.commit()
+
+    async def update(self, db_user: User, user_in: UserUpdate) -> User:
+        """
+        Updates an existing user's attributes.
+        Handles re-hashing of passwords and re-encryption of sensitive data.
+        """
+        update_data = user_in.model_dump(exclude_unset=True)
+
+        # If the user wants to update their password, hash it before saving
+        if "password" in update_data:
+            update_data["password"] = get_password_hash(update_data["password"])
+
+        # If the user wants to update phone or address, encrypt them
+        if "phone_number" in update_data:
+            update_data["phone_number"] = encrypt_data(update_data["phone_number"])
+
+        if "address" in update_data:
+            update_data["address"] = encrypt_data(update_data["address"])
+
+        for key, value in update_data.items():
+            setattr(db_user, key, value)
+
+        await self.session.commit()
+        await self.session.refresh(db_user)
+        return db_user

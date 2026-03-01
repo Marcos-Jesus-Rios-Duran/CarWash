@@ -6,9 +6,11 @@ import logging
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from common.utils.responses import ErrorMessages, SuccessMessages
 from features.user.dao import UserDAO
 from features.role.dao import RoleDAO
-from features.user.schemas import UserCreate
+from features.user.models import User
+from features.user.schemas import UserCreate, UserUpdate
 
 # Configure professional logging
 logger = logging.getLogger(__name__)
@@ -65,3 +67,32 @@ class UserController:
         Business logic to retrieve all users.
         """
         return await self.user_dao.get_all()
+
+    async def update_user(self, user_id: int, user_in: UserUpdate, current_user: User):
+        """
+        Apply business rules to update a user's information.
+        """
+        target_user = await self.user_dao.get_by_id(user_id)
+        if not target_user:
+            raise HTTPException(status_code=404, detail=ErrorMessages.RESOURCE_NOT_FOUND)
+
+        # the golden rule: Only Admins can update any user, but users can update their own profile
+        if current_user.role.name != "Admin" and current_user.id != user_id:
+            raise HTTPException(status_code=403, detail=ErrorMessages.FORBIDDEN_ROLE)
+
+        return await self.user_dao.update(target_user, user_in)
+
+    async def delete_user(self, user_id: int, current_user: User):
+        """
+        Apply business rules to delete a user.
+        """
+        target_user = await self.user_dao.get_by_id(user_id)
+        if not target_user:
+            raise HTTPException(status_code=404, detail=ErrorMessages.RESOURCE_NOT_FOUND)
+
+        # the golden rule: Only Admins can delete any user, but users can delete their own profile
+        if current_user.role.name != "Admin" and current_user.id != user_id:
+            raise HTTPException(status_code=403, detail=ErrorMessages.FORBIDDEN_ROLE)
+
+        await self.user_dao.delete(target_user)
+        return {"detail": SuccessMessages.DELETED}
