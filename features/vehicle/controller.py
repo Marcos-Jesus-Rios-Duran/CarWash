@@ -33,14 +33,18 @@ class VehicleController:
                 detail="Ya existe un vehículo registrado con ese número de placa."
             )
 
-    async def get_allowed_vehicles(self, current_user: User):
+    async def get_allowed_vehicles(self, current_user: User, include_inactive: bool = False):
         """
         Returns vehicles based on the user's role.
+        Forwards the 'include_inactive' flag to the DAO for history filtering.
         """
         if current_user.role.name == "Customer":
-            return await self.vehicle_dao.get_by_owner(current_user.id)
+            # Le pasamos la bandera al método del dueño
+            return await self.vehicle_dao.get_by_owner(current_user.id, include_inactive)
 
-        return await self.vehicle_dao.get_all()
+        # Le pasamos la bandera al método general (Admin/Cashier)
+        return await self.vehicle_dao.get_all(include_inactive)
+
     async def update_vehicle(self, vehicle_id: int, vehicle_in: VehicleUpdate, current_user: User):
         """Aplica reglas de negocio para actualizar un vehículo."""
         vehicle = await self.vehicle_dao.get_by_id(vehicle_id)

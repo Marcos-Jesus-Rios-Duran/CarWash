@@ -3,7 +3,7 @@ carwash_backend/features/appointment/routes.py
 _routes for appointment feature_
 """
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from common.config.database import get_db
 from common.security.permissions import RoleChecker
@@ -47,3 +47,16 @@ async def get_dashboard_stats(
     today = get_now_mx().date()
     stats_dao = AppointmentStatsDAO(db)
     return await stats_dao.get_daily_stats(today)
+@router.patch("/{appointment_id}/status", response_model=AppointmentResponse)
+async def update_status(
+    appointment_id: int,
+    new_status: str = Query(..., description="Status ('Pending', 'In Progress', 'Completed', 'Cancelled')"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(RoleChecker(["Admin", "Cashier", "Washer"]))
+):
+    """
+    Update the status of a specific appointment.
+    Washers will use this to mark a car as 'In Progress' or 'Completed'.
+    """
+    controller = AppointmentController(db)
+    return await controller.update_appointment_status(appointment_id, new_status, current_user)

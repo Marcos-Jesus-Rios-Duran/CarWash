@@ -63,11 +63,11 @@ class UserController:
         logger.info(f"Creating new user: {user_in.username} with role {user_in.role_name}")
         return await self.user_dao.create(user_in)
 
-    async def get_all_users(self):
+    async def get_all_users(self, include_inactive: bool = False):
         """
         Business logic to retrieve all users.
         """
-        return await self.user_dao.get_all()
+        return await self.user_dao.get_all(include_inactive)
 
     async def update_user(self, user_id: int, user_in: UserUpdate, current_user: User):
         """

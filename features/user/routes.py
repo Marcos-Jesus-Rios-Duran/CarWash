@@ -1,6 +1,6 @@
 """User router module."""
 
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from common.security.oauth2 import get_current_user
@@ -42,13 +42,14 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
 
 @router.get("/", response_model=list[UserResponse])
 async def list_all_users(
+    include_inactive: bool = Query(False, description="Include deactivated users in the list"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(RoleChecker(["Admin"]))):
     """
     List of all users in the system. Only accessible by Admins.
     """
     controller = UserController(db)
-    return await controller.get_all_users()
+    return await controller.get_all_users(include_inactive)
 
 @router.patch("/{user_id}", response_model=UserResponse)
 async def update_user(
