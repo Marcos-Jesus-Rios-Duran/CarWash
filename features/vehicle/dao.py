@@ -65,3 +65,9 @@ class VehicleDAO:
         """kill a vehicle record from the database."""
         db_vehicle.is_active = False
         await self.session.commit()
+
+    async def get_by_plate(self, plate_number: str) -> Optional[Vehicle]:
+        """Find a vehicle by its exact plate number."""
+        query = select(Vehicle).where(Vehicle.plate_number == plate_number)
+        result = await self.session.execute(query)
+        return result.scalars().first()
