@@ -25,22 +25,22 @@ class VehicleDAO:
         await self.session.refresh(new_vehicle)
         return new_vehicle
 
-    async def get_all(self) -> List[Vehicle]:
+    async def get_all(self, include_inactive: bool = False) -> List[Vehicle]:
         """
-        Retrieve all vehicles in the system (For Admins and Cashiers).
+        Retrieves vehicles with optional history filter.
         """
-        query = select(Vehicle).filter(Vehicle.is_active == True)
+        query = select(Vehicle)
+        if not include_inactive:
+            query = query.filter(Vehicle.is_active == True)
+
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
-    async def get_by_owner(self, user_id: int) -> List[Vehicle]:
-        """
-        Retrieve only the vehicles belonging to a specific user.
-        """
-        query = select(Vehicle).where(
-            Vehicle.user_id == user_id
-            & (Vehicle.is_active == True)
-        )
+    async def get_by_owner(self, user_id: int, include_inactive: bool = False) -> List[Vehicle]:
+        """Retrieve owner's vehicles with optional history filter."""
+        query = select(Vehicle).where(Vehicle.user_id == user_id)
+        if not include_inactive:
+            query = query.filter(Vehicle.is_active == True)
         result = await self.session.execute(query)
         return list(result.scalars().all())
 

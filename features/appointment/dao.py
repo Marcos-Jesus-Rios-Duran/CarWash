@@ -57,3 +57,15 @@ class AppointmentDAO:
         await self.session.commit()
         await self.session.refresh(db_appointment)
         return db_appointment
+
+    async def update_fields(self, db_obj: Appointment, update_data: dict) -> Appointment:
+        """
+        Generic method to update multiple fields of an appointment.
+        Useful for automated timestamps (start_time, end_time) and status changes.
+        """
+        for field, value in update_data.items():
+            setattr(db_obj, field, value)
+
+        await self.session.commit()
+        await self.session.refresh(db_obj)
+        return db_obj

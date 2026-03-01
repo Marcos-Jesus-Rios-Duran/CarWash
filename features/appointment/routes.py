@@ -31,3 +31,19 @@ async def list_appointments(
     """Retrieves appointments filtered by user role permissions."""
     controller = AppointmentController(db)
     return await controller.get_visible_appointments(current_user)
+
+@router.get("/dashboard/stats")
+async def get_dashboard_stats(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(RoleChecker(["Admin"]))
+):
+    """
+    Business Intelligence Dashboard.
+    Provides daily revenue and status summary. Admin Only.
+    """
+    from common.utils.date_utils import get_now_mx
+    from features.appointment.dao_stats import AppointmentStatsDAO
+
+    today = get_now_mx().date()
+    stats_dao = AppointmentStatsDAO(db)
+    return await stats_dao.get_daily_stats(today)

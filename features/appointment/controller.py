@@ -5,6 +5,7 @@ Orchestrates appointment rules, pricing, and role-based filtering.
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from common.utils.date_utils import get_now_mx
 from features.appointment.dao import AppointmentDAO
 from features.service.dao import ServiceDAO
 from features.vehicle.dao import VehicleDAO
@@ -48,3 +49,24 @@ class AppointmentController:
             return await self.appointment_dao.get_by_washer_id(current_user.id)
 
         return await self.appointment_dao.get_all_with_details()
+
+    async def update_appointment_status(self, appointment_id: int, new_status: str, current_user: User):
+        """
+        Updates appointment status and automatically sets timestamps.
+        Rules:
+        - 'In Progress' sets start_time.
+        - 'Completed' sets end_time.
+        """
+        db_appointment = await self.appointment_dao.get_by_id(appointment_id)
+        if not db_appointment:
+            raise HTTPException(status_code=404, detail="Appointment not found.")
+
+        # Logic for automated timestamps
+        update_data = {"status": new_status}
+
+        if new_status == "In Progress":
+            update_data["start_time"] = get_now_mx()
+        elif new_status == "Completed":
+            update_data["end_time"] = get_now_mx()
+
+        return await self.appointment_dao.update_fields(db_appointment, update_data)

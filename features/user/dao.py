@@ -97,11 +97,15 @@ class UserDAO:
             result = await self.session.execute(query)
             return result.scalars().first()
 
-    async def get_all(self) -> list[User]:
-        """Obtiene todos los usuarios cargando sus roles."""
-        query = select(User).filter(User.is_active == True).options(selectinload(User.role))
+    async def get_all(self, include_inactive: bool = False) -> list[User]:
+        """Retrieves all users. If include_inactive is True, it returns everyone."""
+        query = select(User).options(selectinload(User.role))
+
+        if not include_inactive:
+            query = query.filter(User.is_active == True)
+
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def delete(self, db_user: User) -> None:
         """update  a user's is_active status to False."""
