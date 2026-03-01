@@ -63,7 +63,11 @@ class AppointmentController:
 
         # Logic for automated timestamps
         update_data = {"status": new_status}
-
+        if db_appointment.status in ["Cancelled", "Completed"]:
+            raise HTTPException(
+                status_code=400,
+                detail=f"No se puede cambiar el estado de una cita que ya está '{db_appointment.status}'."
+            )
         if new_status == "In Progress":
             update_data["start_time"] = get_now_mx()
         elif new_status == "Completed":
