@@ -93,7 +93,7 @@ class UserDAO:
 
     async def get_by_id(self, user_id: int) -> Optional[User]:
             """Busca un usuario por ID cargando su rol para validaciones de seguridad."""
-            query = select(User).options(selectinload(User.role)).where(User.id == user_id)
+            query = select(User).options(selectinload(User.role), selectinload(User.vehicles)).where(User.id == user_id)
             result = await self.session.execute(query)
             return result.scalars().first()
 
@@ -106,6 +106,9 @@ class UserDAO:
     async def delete(self, db_user: User) -> None:
         """update  a user's is_active status to False."""
         db_user.is_active = False
+        if db_user.vehicles:
+            for vehicle in db_user.vehicles:
+                vehicle.is_active = False
         await self.session.commit()
 
     async def update(self, db_user: User, user_in: UserUpdate) -> User:

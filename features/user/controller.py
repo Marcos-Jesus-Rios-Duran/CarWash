@@ -62,6 +62,7 @@ class UserController:
         # 5. Persist user data via DAO
         logger.info(f"Creating new user: {user_in.username} with role {user_in.role_name}")
         return await self.user_dao.create(user_in)
+
     async def get_all_users(self):
         """
         Business logic to retrieve all users.
