@@ -15,7 +15,8 @@ class AppointmentBase(BaseModel):
     """
     appointment_date: datetime = Field(..., description="Fecha y hora de la cita")
     status: str = Field(default="Pending", max_length=20)
-    total_price: float = Field(..., gt=0, description="El precio debe ser mayor a 0")
+    discount: float = Field(default=0.0, ge=0, description="Descuento aplicado al servicio")
+    total_price: Optional[float] = Field(None, ge=0, description="El precio debe ser mayor a 0")
 
 
 class AppointmentCreate(AppointmentBase):
@@ -57,4 +58,25 @@ class AppointmentResponse(AppointmentBase):
     created_at: datetime
 
     # Pydantic V2 configuration to allow working with SQLAlchemy models
+    model_config = ConfigDict(from_attributes=True)
+
+class AppointmentDailyReport(BaseModel):
+    """
+    Schema for the comprehensive daily report requested by management.
+    """
+    appointment_id: int
+    status: str
+    cashier_full_name: str
+    washer_full_name: str
+    service_name: str
+    service_description: Optional[str]
+    service_cost: float
+    discount: float
+    total_price: float
+    vehicle_plate: str
+    vehicle_brand: str
+    vehicle_model: str
+    vehicle_color: Optional[str]
+    duration_minutes: Optional[int] = Field(None, description="Tiempo que tardó el lavador en minutos")
+
     model_config = ConfigDict(from_attributes=True)

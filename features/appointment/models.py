@@ -38,6 +38,7 @@ class Appointment(Base):
 
     # Service Status and Pricing
     status = Column(String(20), default="Pending")
+    discount = Column(Float, default=0.0)
     total_price = Column(Float, nullable=False)
 
     # pylint: disable=not-callable

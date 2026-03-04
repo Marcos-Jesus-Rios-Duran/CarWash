@@ -3,8 +3,9 @@ carwash_backend/features/appointment/dao.py
 _data access object for appointment feature_
 """
 
+from datetime import date
 from typing import List, Optional
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from features.appointment.models import Appointment
@@ -69,3 +70,18 @@ class AppointmentDAO:
         await self.session.commit()
         await self.session.refresh(db_obj)
         return db_obj
+
+    async def get_by_date(self, target_date: date) -> List[Appointment]:
+        """
+        Retrieves all appointments for a specific date, pulling all related
+        data (JOINS) to avoid extra queries.
+        """
+        query = select(Appointment).options(
+            selectinload(Appointment.vehicle),
+            selectinload(Appointment.service),
+            selectinload(Appointment.cashier),
+            selectinload(Appointment.washer)
+        ).where(func.date(Appointment.appointment_date) == target_date)
+
+        result = await self.session.execute(query)
+        return list(result.scalars().all())

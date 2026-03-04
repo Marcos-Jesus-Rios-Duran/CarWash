@@ -23,6 +23,7 @@ from features.auth.routes import router as auth_router
 from features.vehicle.routes import router as vehicle_router
 from features.service.routes import router as service_router
 from features.appointment.routes import router as appointment_router
+from features.product.routes import router as product_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -54,3 +55,4 @@ app.include_router(user_router)
 app.include_router(vehicle_router)
 app.include_router(service_router)
 app.include_router(appointment_router)
+app.include_router(product_router)

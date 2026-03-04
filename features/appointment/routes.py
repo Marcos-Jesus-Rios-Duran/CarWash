@@ -5,10 +5,11 @@ _routes for appointment feature_
 from typing import List
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import date
 from common.config.database import get_db
 from common.security.permissions import RoleChecker
 from features.user.models import User
-from features.appointment.schemas import AppointmentCreate, AppointmentResponse
+from features.appointment.schemas import AppointmentCreate, AppointmentDailyReport, AppointmentResponse
 from features.appointment.controller import AppointmentController
 
 router = APIRouter(prefix="/appointments", tags=["Appointments"])
@@ -60,3 +61,17 @@ async def update_status(
     """
     controller = AppointmentController(db)
     return await controller.update_appointment_status(appointment_id, new_status, current_user)
+
+@router.get("/report/{target_date}", response_model=List[AppointmentDailyReport])
+async def generate_daily_report(
+    target_date: date,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(RoleChecker(["Admin", "Cashier"]))
+):
+    """
+    Generates a comprehensive daily report containing service, staff, and vehicle details.
+    Calculates wash duration and discounts.
+    Format required for target_date: YYYY-MM-DD
+    """
+    controller = AppointmentController(db)
+    return await controller.get_daily_report(target_date)
